@@ -22,12 +22,10 @@ app.get("/", async (req, res) => {
 
 app.use("/books", booksRouter);
 
-initializeDatabase()
-  .catch((error) => {
-    console.error("Failed to initialize database", error);
-  })
-  .finally(() => {
-    app.listen(port, () => {
-      console.log(`App listening on port ${port}`);
-    });
-  });
+initializeDatabase().catch((error) => {
+  console.error("Failed to initialize database", error);
+});
+
+app.listen(port, () => {
+  console.log(`App listening on port ${port}`);
+});

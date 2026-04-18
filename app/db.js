@@ -5,6 +5,8 @@ const { Pool } = pg;
 const databaseUrl = process.env.DATABASE_URL;
 
 let databaseAvailable = Boolean(databaseUrl);
+let schemaInitialized = false;
+let schemaInitializationPromise = null;
 
 const pool = databaseUrl
   ? new Pool({
@@ -18,10 +20,50 @@ function createDatabaseUnavailableError() {
   return error;
 }
 
+async function ensureDatabaseSchema() {
+  if (!pool) {
+    throw createDatabaseUnavailableError();
+  }
+
+  if (schemaInitialized) {
+    return;
+  }
+
+  if (!schemaInitializationPromise) {
+    schemaInitializationPromise = pool
+      .query(
+        `
+        CREATE TABLE IF NOT EXISTS books (
+          id SERIAL PRIMARY KEY,
+          title TEXT NOT NULL,
+          author TEXT NOT NULL,
+          published_year INTEGER,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      `,
+      )
+      .then(() => {
+        databaseAvailable = true;
+        schemaInitialized = true;
+      })
+      .catch((error) => {
+        databaseAvailable = false;
+        throw error;
+      })
+      .finally(() => {
+        schemaInitializationPromise = null;
+      });
+  }
+
+  await schemaInitializationPromise;
+}
+
 export async function query(text, params) {
   if (!pool) {
     throw createDatabaseUnavailableError();
   }
+
+  await ensureDatabaseSchema();
 
   const result = await pool.query(text, params);
   databaseAvailable = true;
@@ -51,15 +93,7 @@ export async function initializeDatabase() {
   }
 
   try {
-    await query(`
-      CREATE TABLE IF NOT EXISTS books (
-        id SERIAL PRIMARY KEY,
-        title TEXT NOT NULL,
-        author TEXT NOT NULL,
-        published_year INTEGER,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
-    `);
+    await ensureDatabaseSchema();
   } catch (error) {
     databaseAvailable = false;
     throw error;
