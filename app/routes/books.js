@@ -1,12 +1,12 @@
 import express from "express";
 
-import { pool } from "../db.js";
+import { query } from "../db.js";
 
 const booksRouter = express.Router();
 
 booksRouter.get("/", async (req, res) => {
   try {
-    const result = await pool.query(
+    const result = await query(
       "SELECT id, title, author, published_year, created_at FROM books ORDER BY id ASC",
     );
 
@@ -19,7 +19,7 @@ booksRouter.get("/", async (req, res) => {
 
 booksRouter.get("/:id", async (req, res) => {
   try {
-    const result = await pool.query(
+    const result = await query(
       "SELECT id, title, author, published_year, created_at FROM books WHERE id = $1",
       [req.params.id],
     );
@@ -43,7 +43,7 @@ booksRouter.post("/", async (req, res) => {
   }
 
   try {
-    const result = await pool.query(
+    const result = await query(
       `
         INSERT INTO books (title, author, published_year)
         VALUES ($1, $2, $3)
@@ -61,7 +61,7 @@ booksRouter.post("/", async (req, res) => {
 
 booksRouter.delete("/:id", async (req, res) => {
   try {
-    const result = await pool.query(
+    const result = await query(
       "DELETE FROM books WHERE id = $1 RETURNING id",
       [req.params.id],
     );
