@@ -20,6 +20,11 @@ function createDatabaseUnavailableError() {
   return error;
 }
 
+function markDatabaseUnavailable() {
+  databaseAvailable = false;
+  schemaInitialized = false;
+}
+
 async function ensureDatabaseSchema() {
   if (!pool) {
     throw createDatabaseUnavailableError();
@@ -47,7 +52,7 @@ async function ensureDatabaseSchema() {
         schemaInitialized = true;
       })
       .catch((error) => {
-        databaseAvailable = false;
+        markDatabaseUnavailable();
         throw error;
       })
       .finally(() => {
@@ -63,16 +68,21 @@ export async function query(text, params) {
     throw createDatabaseUnavailableError();
   }
 
-  await ensureDatabaseSchema();
+  try {
+    await ensureDatabaseSchema();
 
-  const result = await pool.query(text, params);
-  databaseAvailable = true;
-  return result;
+    const result = await pool.query(text, params);
+    databaseAvailable = true;
+    return result;
+  } catch (error) {
+    markDatabaseUnavailable();
+    throw error;
+  }
 }
 
 export async function checkDatabaseAvailability() {
   if (!pool) {
-    databaseAvailable = false;
+    markDatabaseUnavailable();
     return false;
   }
 
@@ -81,21 +91,21 @@ export async function checkDatabaseAvailability() {
     databaseAvailable = true;
     return true;
   } catch {
-    databaseAvailable = false;
+    markDatabaseUnavailable();
     return false;
   }
 }
 
 export async function initializeDatabase() {
   if (!pool) {
-    databaseAvailable = false;
+    markDatabaseUnavailable();
     throw createDatabaseUnavailableError();
   }
 
   try {
     await ensureDatabaseSchema();
   } catch (error) {
-    databaseAvailable = false;
+    markDatabaseUnavailable();
     throw error;
   }
 }
