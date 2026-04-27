@@ -4,6 +4,16 @@ import { query } from "../db.js";
 
 const booksRouter = express.Router();
 
+export function validateCreateBookPayload(body) {
+  const { title, author } = body;
+
+  if (!title || !author) {
+    return { error: "title and author are required" };
+  }
+
+  return null;
+}
+
 booksRouter.get("/", async (req, res) => {
   try {
     const result = await query(
@@ -36,11 +46,13 @@ booksRouter.get("/:id", async (req, res) => {
 });
 
 booksRouter.post("/", async (req, res) => {
-  const { title, author, published_year: publishedYear } = req.body;
+  const validationError = validateCreateBookPayload(req.body);
 
-  if (!title || !author) {
-    return res.status(400).json({ error: "title and author are required" });
+  if (validationError) {
+    return res.status(400).json(validationError);
   }
+
+  const { title, author, published_year: publishedYear } = req.body;
 
   try {
     const result = await query(
