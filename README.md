@@ -1,5 +1,7 @@
 # DevOps CI/CD Pipeline Demo 🚀
 
+[![CICD](https://github.com/theexeq/devops-ci-cd-pipeline/actions/workflows/cicd.yaml/badge.svg)](https://github.com/theexeq/devops-ci-cd-pipeline/actions/workflows/cicd.yaml)
+
 This repository demonstrates a practical CI/CD pipeline for a containerized application backed by a relational database.
 
 The project shows how application changes can move through an automated delivery flow that validates code quality, builds deployable artifacts, and publishes versioned container images.
