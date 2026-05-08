@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - feature/semver-workflow
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -38,6 +36,6 @@ jobs:
           -p @semantic-release/commit-analyzer
           -p @semantic-release/release-notes-generator
           -p @semantic-release/github
-          semantic-release --dry-run
+          semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

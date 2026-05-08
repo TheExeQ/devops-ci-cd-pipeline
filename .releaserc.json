@@ -1,8 +1,5 @@
 {
-  "branches": [
-    "main",
-    "feature/semver-workflow"
-  ],
+  "branches": ["main"],
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
