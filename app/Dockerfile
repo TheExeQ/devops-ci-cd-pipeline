@@ -15,7 +15,8 @@ WORKDIR /app
 
 USER node
 
-COPY --chown=node:node . .
+COPY --chown=node:node index.js package.json ./
+COPY --chown=node:node src ./src
 COPY --from=deps --chown=node:node /app/node_modules ./node_modules
 
 EXPOSE 3000
