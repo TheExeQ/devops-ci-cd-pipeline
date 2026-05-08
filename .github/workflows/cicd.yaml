@@ -1,7 +1,9 @@
 name: Build
 
 on:
-  workflow_dispatch:
+  release:
+    types:
+      - published
 
 jobs:
   build-and-push:
@@ -12,7 +14,7 @@ jobs:
 
     env:
       REGISTRY: ghcr.io
-      USERNAME: ${{ github.actor }}
+      USERNAME: ${{ github.repository_owner }}
       IMAGE_NAME: app
 
     steps:
@@ -25,9 +27,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
+            type=raw,value=${{ github.event.release.tag_name }}
+            type=raw,value=latest
             type=sha
-            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Login
         uses: docker/login-action@v4
