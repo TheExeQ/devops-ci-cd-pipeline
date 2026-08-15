@@ -9,6 +9,7 @@ The project shows how application changes can move through an automated delivery
 ## Overview
 
 The pipeline automates key delivery steps such as:
+
 - Installing dependencies with a locked package setup
 - Running automated tests before any publish step
 - Building the application into a container image
@@ -20,6 +21,7 @@ This keeps delivery repeatable, reduces manual release work, and helps prevent u
 ## Application behavior
 
 The demo application includes:
+
 - An HTTP API for managing book records
 - A health endpoint that reports overall service availability and database status
 - Basic request validation for create operations
@@ -32,9 +34,54 @@ The project includes a containerized local setup so the application and its data
 
 The application image is built for production-style execution and uses a minimal runtime footprint with only the dependencies needed to run the service.
 
+## Interacting with the app
+
+With the stack running locally via `docker compose up`, the API is exposed on port `3000`. The following `curl` commands cover the main endpoints.
+
+Check service and database health:
+
+```bash
+curl http://localhost:3000/
+```
+
+List all books:
+
+```bash
+curl http://localhost:3000/books
+```
+
+Get a single book by id:
+
+```bash
+curl http://localhost:3000/books/1
+```
+
+Create a book:
+
+```bash
+curl -X POST http://localhost:3000/books \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Ulysses", "author": "James Joyce", "published_year": 1922}'
+```
+
+Create a book without a publication year:
+
+```bash
+curl -X POST http://localhost:3000/books \
+  -H "Content-Type: application/json" \
+  -d '{"title": "In Search of Lost Time", "author": "Marcel Proust"}'
+```
+
+Delete a book by id:
+
+```bash
+curl -X DELETE http://localhost:3000/books/1
+```
+
 ## Testing
 
 Automated tests cover important behavior such as:
+
 - Health response formatting
 - Request payload validation
 - Database availability checks
